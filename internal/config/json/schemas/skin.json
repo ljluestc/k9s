@@ -107,6 +107,23 @@
             }
           }
         },
+        "global": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "fgColor": {"type": "string"},
+            "bgColor": {"type": "string"},
+            "accentColor": {"type": "string"},
+            "mutedColor": {"type": "string"},
+            "keyColor": {"type": "string"},
+            "valueColor": {"type": "string"},
+            "delimiterColor": {"type": "string"},
+            "infoColor": {"type": "string"},
+            "successColor": {"type": "string"},
+            "warnColor": {"type": "string"},
+            "errorColor": {"type": "string"}
+          }
+        },
         "views": {
           "type": "object",
           "properties": {

@@ -437,6 +437,8 @@ K9s uses aliases to navigate most K8s resources.
 | UsedBy (show resources using this)                                              | `u`                            | ServiceAccounts/PVCs/Secrets/ConfigMaps                                |
 | Benchmark (run/stop)                                                            | `b`                            | Services/Port-forwards                                                 |
 | Toggle text wrap                                                                | `w`                            | Log view                                                               |
+| Scroll logs left/right by half a page                                           | `<` / `>` or `shift-left/right` | Log view, text wrap off                                                |
+| Jump to start/end of log lines                                                  | `ctrl-left/right` or `shift-home/end` | Log view, text wrap off                                                |
 | Toggle timestamp                                                                | `t`                            | Log view                                                               |
 | Toggle fullscreen                                                               | `f`                            | Log/YAML/Details view                                                  |
 | Refresh/reload view                                                             | `ctrl-r`                       |                                                                        |
@@ -1457,6 +1459,21 @@ k9s:
       highlightColor: skyblue
       counterColor: slateblue
       filterColor: slategray
+  # Optional semantic palette for features that are not tied to a given view
+  # (e.g. log highlighting). Any color left out is derived from the sections
+  # above, so existing skins work unchanged.
+  global:
+    fgColor: dodgerblue
+    bgColor: '#ffffff'
+    accentColor: royalblue
+    mutedColor: gray
+    keyColor: steelblue     # labels, keys
+    valueColor: navy        # values
+    delimiterColor: gray    # brackets, braces, colons...
+    infoColor: '#00ff00'
+    successColor: green
+    warnColor: orange
+    errorColor: indianred
   views:
     # TableView attributes.
     table:

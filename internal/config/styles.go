@@ -75,6 +75,26 @@ type (
 		Info   Info   `json:"info" yaml:"info"`
 		Views  Views  `json:"views" yaml:"views"`
 		Dialog Dialog `json:"dialog" yaml:"dialog"`
+		Global Global `json:"global" yaml:"global,omitempty"`
+	}
+
+	// Global tracks semantic colors that are not tied to a specific view.
+	// Features that need colors for abstract concepts (keys, values,
+	// delimiters, severities...) should use these rather than adding a new
+	// skin section. Any unset color is derived from the skin's existing
+	// sections so every skin gets a sensible palette without changes.
+	Global struct {
+		FgColor        Color `json:"fgColor" yaml:"fgColor,omitempty"`
+		BgColor        Color `json:"bgColor" yaml:"bgColor,omitempty"`
+		AccentColor    Color `json:"accentColor" yaml:"accentColor,omitempty"`
+		MutedColor     Color `json:"mutedColor" yaml:"mutedColor,omitempty"`
+		KeyColor       Color `json:"keyColor" yaml:"keyColor,omitempty"`
+		ValueColor     Color `json:"valueColor" yaml:"valueColor,omitempty"`
+		DelimiterColor Color `json:"delimiterColor" yaml:"delimiterColor,omitempty"`
+		InfoColor      Color `json:"infoColor" yaml:"infoColor,omitempty"`
+		SuccessColor   Color `json:"successColor" yaml:"successColor,omitempty"`
+		WarnColor      Color `json:"warnColor" yaml:"warnColor,omitempty"`
+		ErrorColor     Color `json:"errorColor" yaml:"errorColor,omitempty"`
 	}
 
 	// Prompt tracks command styles
@@ -491,6 +511,8 @@ func NewStyles() *Styles {
 
 // Reset resets styles.
 func (s *Styles) Reset(invert bool) {
+	// Global colors are optional, clear them so a previous skin does not leak.
+	s.K9s.Global = Global{}
 	if err := yaml.Unmarshal(stockSkinTpl, s); err != nil {
 		s.K9s = newStyle()
 	}
@@ -585,6 +607,30 @@ func (s *Styles) Views() Views {
 	return s.K9s.Views
 }
 
+// Global returns the semantic color palette. Colors not set in the skin's
+// global section are derived from the skin's other sections.
+func (s *Styles) Global() Global {
+	g, st := s.K9s.Global, s.K9s
+	fallback := func(c *Color, d Color) {
+		if *c == "" {
+			*c = d
+		}
+	}
+	fallback(&g.FgColor, st.Body.FgColor)
+	fallback(&g.BgColor, st.Body.BgColor)
+	fallback(&g.AccentColor, st.Frame.Status.HighlightColor)
+	fallback(&g.MutedColor, st.Frame.Status.CompletedColor)
+	fallback(&g.KeyColor, st.Views.Yaml.KeyColor)
+	fallback(&g.ValueColor, st.Views.Yaml.ValueColor)
+	fallback(&g.DelimiterColor, st.Views.Yaml.ColonColor)
+	fallback(&g.InfoColor, st.Frame.Status.NewColor)
+	fallback(&g.SuccessColor, st.Body.LogoColorInfo)
+	fallback(&g.WarnColor, st.Body.LogoColorWarn)
+	fallback(&g.ErrorColor, st.Frame.Status.ErrorColor)
+
+	return g
+}
+
 // Invert inverts all colors in the Style.
 func (s *Style) Invert() {
 	s.Body.Invert()
@@ -594,6 +640,18 @@ func (s *Style) Invert() {
 	s.Info.Invert()
 	s.Views.Invert()
 	s.Dialog.Invert()
+	s.Global.Invert()
+}
+
+// Invert inverts all explicitly set global colors.
+func (g *Global) Invert() {
+	for _, c := range []*Color{
+		&g.FgColor, &g.BgColor, &g.AccentColor, &g.MutedColor,
+		&g.KeyColor, &g.ValueColor, &g.DelimiterColor,
+		&g.InfoColor, &g.SuccessColor, &g.WarnColor, &g.ErrorColor,
+	} {
+		*c = c.InvertColor()
+	}
 }
 
 // Invert inverts all colors in Body.

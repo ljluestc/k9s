@@ -85,3 +85,43 @@ Invalid type. Expected: object, given: array`,
 		})
 	}
 }
+
+func TestStylesGlobalFallback(t *testing.T) {
+	s := config.NewStyles()
+	g := s.Global()
+
+	assert.Equal(t, s.K9s.Body.FgColor, g.FgColor)
+	assert.Equal(t, s.K9s.Body.BgColor, g.BgColor)
+	assert.Equal(t, s.K9s.Views.Yaml.KeyColor, g.KeyColor)
+	assert.Equal(t, s.K9s.Views.Yaml.ValueColor, g.ValueColor)
+	assert.Equal(t, s.K9s.Views.Yaml.ColonColor, g.DelimiterColor)
+	assert.Equal(t, s.K9s.Frame.Status.ErrorColor, g.ErrorColor)
+	assert.Equal(t, s.K9s.Frame.Status.HighlightColor, g.AccentColor)
+	assert.Equal(t, s.K9s.Frame.Status.CompletedColor, g.MutedColor)
+	assert.Equal(t, s.K9s.Frame.Status.NewColor, g.InfoColor)
+	assert.Equal(t, s.K9s.Body.LogoColorInfo, g.SuccessColor)
+	assert.Equal(t, s.K9s.Body.LogoColorWarn, g.WarnColor)
+}
+
+func TestStylesGlobalLoad(t *testing.T) {
+	s := config.NewStyles()
+	require.NoError(t, s.Load("testdata/skins/global.yaml", false))
+
+	g := s.Global()
+	assert.Equal(t, config.Color("red"), g.KeyColor)
+	assert.Equal(t, config.Color("#00ff00"), g.DelimiterColor)
+	// Unset global colors still derive from the skin.
+	assert.Equal(t, s.K9s.Views.Yaml.ValueColor, g.ValueColor)
+
+	// Resetting must drop the previous skin's global colors.
+	s.Reset(false)
+	assert.Equal(t, s.K9s.Views.Yaml.KeyColor, s.Global().KeyColor)
+}
+
+func TestStylesGlobalInvert(t *testing.T) {
+	s := config.NewStyles()
+	require.NoError(t, s.Load("testdata/skins/global.yaml", true))
+
+	assert.Equal(t, config.Color("#00ff00").InvertColor(), s.Global().DelimiterColor)
+	assert.NotEqual(t, config.Color("#00ff00"), s.Global().DelimiterColor)
+}

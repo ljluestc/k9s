@@ -1,0 +1,4 @@
+k9s:
+  global:
+    keyColor: red
+    delimiterColor: "#00ff00"
