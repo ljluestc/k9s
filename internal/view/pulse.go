@@ -36,8 +36,6 @@ const (
 	grayC      = "gray"
 )
 
-var corpusGVRs = append(model.PulseGVRs, client.CpuGVR, client.MemGVR)
-
 type Charts map[*client.GVR]Graphable
 
 // Graphable represents a graphic component.
@@ -120,6 +118,7 @@ func (p *Pulse) Init(ctx context.Context) error {
 	if client.IsAllNamespace(ns) {
 		index, chartRow = 0, 8
 	}
+	corpusGVRs := append(model.ResolvePulseGVRs(), client.CpuGVR, client.MemGVR)
 	p.chartGVRs = corpusGVRs[index:]
 
 	p.charts = make(Charts, len(p.chartGVRs))

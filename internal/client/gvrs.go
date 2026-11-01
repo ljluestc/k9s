@@ -45,6 +45,9 @@ var (
 
 	IngGVR = NewGVR("networking.k8s.io/v1/ingresses")
 
+	// Gateway API...
+	HTTPRouteGVR = NewGVR("gateway.networking.k8s.io/v1/httproutes")
+
 	// Metrics...
 	NmxGVR = NewGVR("metrics.k8s.io/v1beta1/nodes")
 	PmxGVR = NewGVR("metrics.k8s.io/v1beta1/pods")

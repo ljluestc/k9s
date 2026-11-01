@@ -45,6 +45,30 @@ var PulseGVRs = client.GVRs{
 	client.SaGVR,
 }
 
+// ResolvePulseGVRs returns the resources tracked by the pulse view for the
+// current cluster. When the Gateway API is served, HTTPRoutes replace the
+// Ingresses gauge since Ingress is being superseded by the Gateway API.
+func ResolvePulseGVRs() client.GVRs {
+	gg := make(client.GVRs, len(PulseGVRs))
+	copy(gg, PulseGVRs)
+	if !hasGVR(client.HTTPRouteGVR) {
+		return gg
+	}
+	for i := range gg {
+		if gg[i] == client.IngGVR {
+			gg[i] = client.HTTPRouteGVR
+		}
+	}
+
+	return gg
+}
+
+func hasGVR(gvr *client.GVR) bool {
+	_, err := dao.MetaAccess.MetaFor(gvr)
+
+	return err == nil
+}
+
 func (g GVRs) First() *client.GVR {
 	return g[0]
 }
@@ -99,7 +123,7 @@ func (h *PulseHealth) Watch(ctx context.Context, ns string) HealthChan {
 
 func (h *PulseHealth) checkPulse(ctx context.Context, ns string, c HealthChan) error {
 	slog.Debug("Checking pulses...")
-	for _, gvr := range PulseGVRs {
+	for _, gvr := range ResolvePulseGVRs() {
 		check, err := h.check(ctx, ns, gvr)
 		if err != nil {
 			return err
