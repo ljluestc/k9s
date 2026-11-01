@@ -83,6 +83,8 @@ const (
 	KeyDash         = 45
 	KeyLeftBracket  = 91
 	KeyRightBracket = 93
+	KeyLess         = 60
+	KeyGreater      = 62
 )
 
 // Define Shift Keys.

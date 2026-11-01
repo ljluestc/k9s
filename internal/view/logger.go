@@ -77,9 +77,13 @@ func (l *Logger) bindKeys() {
 		ui.KeySlash:     ui.NewSharedKeyAction("Filter Mode", l.activateCmd, false),
 		tcell.KeyDelete: ui.NewSharedKeyAction("Erase", l.eraseCmd, false),
 	})
+	bindHScrollKeys(l)
 }
 
 func (l *Logger) keyboard(evt *tcell.EventKey) *tcell.EventKey {
+	if l.hScroll(evt) {
+		return nil
+	}
 	if a, ok := l.actions.Get(ui.AsKey(evt)); ok {
 		return a.Action(evt)
 	}
